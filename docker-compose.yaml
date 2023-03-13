@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  rabbitmq:
+    image: rabbitmq:3.9.28-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: bee
+      RABBITMQ_DEFAULT_PASS: beebee123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - my_network
+
+  consumer:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["./wait-for-it.sh", "rabbitmq:5672", "--", "python", "consumer.py"]
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
